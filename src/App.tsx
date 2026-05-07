@@ -16,13 +16,14 @@ function App() {
   const [subjects, setSubjects] = useState<Subject[]>([])
   const [cards, setCards] = useState<Flashcard[]>([])
   const [selectedSubject, setSelectedSubject] = useState<number | undefined>()
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [flippedCards, setFlippedCards] = useState<Record<number, boolean>>({})
 
   // Form states
   const [newQuestion, setNewQuestion] = useState('')
   const [newAnswer, setNewAnswer] = useState('')
-  const [newSubjectId, setNewSubjectId] = useState<number | ''>('')
+  const [subjectInput, setSubjectInput] = useState('')
 
   useEffect(() => {
     fetchSubjects()
@@ -49,16 +50,33 @@ function App() {
 
   const handleAddCard = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newQuestion || !newAnswer || !newSubjectId) return
+    if (!newQuestion || !newAnswer || !subjectInput) return
     
     try {
+      // Check if subject exists
+      let subjectId: number
+      const existingSubject = subjects.find(s => s.name.toLowerCase() === subjectInput.toLowerCase())
+      
+      if (existingSubject) {
+        subjectId = existingSubject.id
+      } else {
+        // Create new subject
+        const newSub = await studyApi.createSubject({ 
+          name: subjectInput,
+          color: '#' + Math.floor(Math.random()*16777215).toString(16) // Random color
+        })
+        subjectId = newSub.data.id
+        await fetchSubjects() // Refresh sidebar
+      }
+
       await studyApi.createFlashcard({
         question: newQuestion,
         answer: newAnswer,
-        subject: Number(newSubjectId)
+        subject: subjectId
       })
       setNewQuestion('')
       setNewAnswer('')
+      setSubjectInput('')
       setIsModalOpen(false)
       fetchCards()
     } catch (err) {
@@ -92,20 +110,35 @@ function App() {
   const progress = cards.length > 0 ? (learnedCount / cards.length) * 100 : 0
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row relative">
+      {/* Mobile Backdrop */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-30 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-full md:w-72 bg-white border-r border-slate-200 p-6 flex flex-col gap-8">
-        <div className="flex items-center gap-3">
+      <aside className={`
+        fixed inset-y-0 left-0 z-40 w-72 bg-white border-r border-slate-200 p-6 flex flex-col gap-8
+        transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:inset-auto
+        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+      `}>
+        <button 
+          onClick={() => setIsSidebarOpen(false)}
+          className="flex items-center gap-3 text-left focus:outline-none"
+        >
           <div className="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-200">
             <GraduationCap size={24} />
           </div>
           <h1 className="text-xl font-bold text-slate-800 tracking-tight">StudyApp</h1>
-        </div>
+        </button>
 
-        <nav className="flex flex-col gap-2">
+        <nav className="flex flex-col gap-2 overflow-y-auto pr-2">
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Materias</p>
           <button 
-            onClick={() => setSelectedSubject(undefined)}
+            onClick={() => { setSelectedSubject(undefined); setIsSidebarOpen(false); }}
             className={`flex items-center justify-between p-3 rounded-lg transition-all ${!selectedSubject ? 'bg-blue-50 text-blue-700 font-medium' : 'text-slate-600 hover:bg-slate-100'}`}
           >
             <div className="flex items-center gap-3">
@@ -118,7 +151,7 @@ function App() {
           {subjects.map(subject => (
             <button 
               key={subject.id}
-              onClick={() => setSelectedSubject(subject.id)}
+              onClick={() => { setSelectedSubject(subject.id); setIsSidebarOpen(false); }}
               className={`flex items-center justify-between p-3 rounded-lg transition-all ${selectedSubject === subject.id ? 'bg-blue-50 text-blue-700 font-medium' : 'text-slate-600 hover:bg-slate-100'}`}
             >
               <div className="flex items-center gap-3">
@@ -147,11 +180,21 @@ function App() {
       {/* Main Content */}
       <main className="flex-1 p-4 md:p-10">
         <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
-          <div>
-            <h2 className="text-3xl font-bold text-slate-900">
-              {selectedSubject ? subjects.find(s => s.id === selectedSubject)?.name : 'Meus Flashcards'}
-            </h2>
-            <p className="text-slate-500 mt-1">Você tem {cards.length} cards para estudar hoje.</p>
+          <div className="flex items-center gap-4">
+            {/* Mobile Toggle Logo */}
+            <button 
+              onClick={() => setIsSidebarOpen(true)}
+              className="md:hidden bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-200"
+            >
+              <GraduationCap size={24} />
+            </button>
+            
+            <div>
+              <h2 className="text-3xl font-bold text-slate-900">
+                {selectedSubject ? subjects.find(s => s.id === selectedSubject)?.name : 'Meus Flashcards'}
+              </h2>
+              <p className="text-slate-500 mt-1">Você tem {cards.length} cards para estudar hoje.</p>
+            </div>
           </div>
           <button 
             onClick={() => setIsModalOpen(true)}
@@ -223,15 +266,19 @@ function App() {
             <form onSubmit={handleAddCard} className="flex flex-col gap-5">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Materia</label>
-                <select 
-                  value={newSubjectId}
-                  onChange={(e) => setNewSubjectId(e.target.value === '' ? '' : Number(e.target.value))}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                  required
-                >
-                  <option value="">Selecione uma materia</option>
-                  {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                </select>
+                <div className="relative">
+                  <input 
+                    list="subjects-list"
+                    value={subjectInput}
+                    onChange={(e) => setSubjectInput(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    placeholder="Digite ou selecione uma materia (ex: Matematica)"
+                    required
+                  />
+                  <datalist id="subjects-list">
+                    {subjects.map(s => <option key={s.id} value={s.name} />)}
+                  </datalist>
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Pergunta</label>
