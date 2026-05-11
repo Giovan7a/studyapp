@@ -136,7 +136,7 @@ function App() {
         </button>
 
         <nav className="flex flex-col gap-2 overflow-y-auto pr-2">
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Materias</p>
+          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Áreas do ENEM</p>
           <button 
             onClick={() => { setSelectedSubject(undefined); setIsSidebarOpen(false); }}
             className={`flex items-center justify-between p-3 rounded-lg transition-all ${!selectedSubject ? 'bg-blue-50 text-blue-700 font-medium' : 'text-slate-600 hover:bg-slate-100'}`}
@@ -265,14 +265,14 @@ function App() {
             <h3 className="text-2xl font-bold text-slate-900 mb-6">Novo Flashcard</h3>
             <form onSubmit={handleAddCard} className="flex flex-col gap-5">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">Materia</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5">Área do ENEM</label>
                 <div className="relative">
                   <input 
                     list="subjects-list"
                     value={subjectInput}
                     onChange={(e) => setSubjectInput(e.target.value)}
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                    placeholder="Digite ou selecione uma materia (ex: Matematica)"
+                    placeholder="Ex: Ciências da Natureza, Linguagens..."
                     required
                   />
                   <datalist id="subjects-list">
