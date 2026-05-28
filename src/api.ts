@@ -31,6 +31,7 @@ export const studyApi = {
   createFlashcard: (data: Partial<Flashcard>) => api.post<Flashcard>('flashcards/', data),
   updateFlashcard: (id: number, data: Partial<Flashcard>) => api.patch<Flashcard>(`flashcards/${id}/`, data),
   deleteFlashcard: (id: number) => api.delete(`flashcards/${id}/`),
+  deleteSubject: (id: number) => api.delete(`subjects/${id}/`),
 };
 
 export default api;
