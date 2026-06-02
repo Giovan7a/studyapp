@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -8,6 +9,10 @@ import Dashboard from './pages/Dashboard';
 import Admin from './pages/Admin';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
+import StudySession from './pages/StudySession';
+import Schedule from './pages/Schedule';
+import ThemeToggle from './components/ThemeToggle';
+import Pomodoro from './pages/Pomodoro';
 
 // Wrapper for protected routes
 const ProtectedRoute = ({ children, roles }: { children: React.ReactNode, roles?: string[] }) => {
@@ -55,10 +60,34 @@ function AppRoutes() {
         } 
       />
       <Route 
+        path="/schedule" 
+        element={
+          <ProtectedRoute>
+            <Schedule />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/pomodoro" 
+        element={
+          <ProtectedRoute>
+            <Pomodoro />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
         path="/admin" 
         element={
-          <ProtectedRoute roles={['admin']}>
+          <ProtectedRoute>
             <Admin />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/study/:subjectId" 
+        element={
+          <ProtectedRoute>
+            <StudySession />
           </ProtectedRoute>
         } 
       />
@@ -70,9 +99,12 @@ function AppRoutes() {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <AppRoutes />
-      </Router>
+      <ThemeProvider>
+        <Router>
+          <AppRoutes />
+          <ThemeToggle />
+        </Router>
+      </ThemeProvider>
     </AuthProvider>
   );
 }

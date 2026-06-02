@@ -2,16 +2,18 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 
 export type Role = 'admin' | 'usuario';
+export type EducationLevel = 'fundamental1' | 'fundamental2_medio' | 'faculdade';
 
 interface User {
   username: string;
   role: Role;
+  educationLevel?: EducationLevel;
 }
 
 interface AuthContextType {
   user: User | null;
   login: (username: string, password: string) => boolean;
-  register: (username: string, password: string) => boolean;
+  register: (username: string, password: string, educationLevel: EducationLevel) => boolean;
   logout: () => void;
 }
 
@@ -45,16 +47,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const usersStr = localStorage.getItem('studyapp_users_db');
     if (usersStr) {
       const users = JSON.parse(usersStr);
-      if (users[username] && users[username] === password) {
-        setUser({ username, role: 'usuario' });
-        return true;
+      const userRecord = users[username];
+      
+      if (userRecord) {
+        // Handle legacy format (just password string)
+        if (typeof userRecord === 'string' && userRecord === password) {
+          setUser({ username, role: 'usuario', educationLevel: 'faculdade' });
+          return true;
+        } 
+        // Handle new format
+        else if (typeof userRecord === 'object' && userRecord.password === password) {
+          setUser({ username, role: 'usuario', educationLevel: userRecord.educationLevel });
+          return true;
+        }
       }
     }
 
     return false;
   };
 
-  const register = (username: string, password: string): boolean => {
+  const register = (username: string, password: string, educationLevel: EducationLevel): boolean => {
     if (username === 'admin' || username === 'usuario') return false; // Reserved
 
     const usersStr = localStorage.getItem('studyapp_users_db');
@@ -64,9 +76,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return false; // User already exists
     }
 
-    users[username] = password;
+    users[username] = { password, educationLevel };
     localStorage.setItem('studyapp_users_db', JSON.stringify(users));
-    setUser({ username, role: 'usuario' });
+    setUser({ username, role: 'usuario', educationLevel });
     return true;
   };
 
@@ -81,6 +93,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

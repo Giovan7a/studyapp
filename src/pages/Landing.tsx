@@ -3,19 +3,19 @@ import { GraduationCap, BrainCircuit, BookOpen, Star, ChevronRight } from 'lucid
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-slate-50 font-sans selection:bg-blue-200">
+    <div className="min-h-screen font-sans selection:bg-brand/20">
       {/* Navbar */}
-      <nav className="flex items-center justify-between px-6 py-4 bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-100">
+      <nav className="flex items-center justify-between px-6 py-4 glass-panel sticky top-0 z-50 border-b border-white/20 dark:border-slate-700/50">
         <div className="flex items-center gap-3">
-          <div className="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-200">
+          <div className="bg-brand p-2 rounded-xl text-white shadow-lg shadow-brand/20">
             <GraduationCap size={24} />
           </div>
-          <h1 className="text-2xl font-bold text-slate-800 tracking-tight">StudyApp</h1>
+          <h1 className="text-2xl font-bold tracking-tight">StudyApp</h1>
         </div>
         <div>
           <Link 
             to="/login"
-            className="text-sm font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-5 py-2.5 rounded-xl transition-colors"
+            className="text-sm font-semibold text-brand hover:opacity-80 bg-brand/10 hover:bg-brand/20 px-5 py-2.5 rounded-xl transition-colors"
           >
             Entrar na Plataforma
           </Link>
@@ -23,52 +23,92 @@ export default function Landing() {
       </nav>
 
       {/* Hero Section */}
-      <section className="px-6 py-20 md:py-32 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12">
-        <div className="flex-1 text-center md:text-left space-y-8">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 text-blue-700 text-sm font-semibold mb-2">
-            <Star size={16} className="fill-blue-500" />
-            Do Fundamental ao Ensino Médio
+      <section className="px-6 py-20 md:py-32 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 relative">
+        <div className="absolute top-20 right-20 w-96 h-96 bg-brand/10 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+        <div className="absolute bottom-20 left-20 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+
+        <div className="flex-1 text-center md:text-left space-y-8 z-10">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand/10 text-brand text-sm font-bold mb-2 animate-bounce hover:scale-105 transition-transform cursor-default">
+            <Star size={16} className="fill-brand" />
+            Nova versão 2.0 disponível!
           </div>
-          <h2 className="text-5xl md:text-6xl font-extrabold text-slate-900 leading-tight">
+          <h2 className="text-5xl md:text-7xl font-extrabold leading-tight tracking-tight">
             Estude de forma <br className="hidden md:block"/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-              inteligente e divertida
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-brand via-purple-500 to-brand bg-[length:200%_auto] animate-gradient">
+              inteligente e imersiva
             </span>
           </h2>
-          <p className="text-lg md:text-xl text-slate-500 max-w-2xl mx-auto md:mx-0 leading-relaxed">
-            Organize suas matérias, crie flashcards e prepare-se para o ENEM e provas escolares de um jeito que funciona para você.
+          <p className="text-lg md:text-xl opacity-70 max-w-2xl mx-auto md:mx-0 leading-relaxed font-medium">
+            Organize suas matérias, monte seu cronograma semanal e crie flashcards com repetição espaçada. O método comprovado para tirar 10.
           </p>
-          <div className="flex flex-col sm:flex-row items-center gap-4 justify-center md:justify-start">
+          <div className="flex flex-col sm:flex-row items-center gap-4 justify-center md:justify-start pt-4">
             <Link 
               to="/login"
-              className="flex items-center gap-2 bg-blue-600 text-white px-8 py-4 rounded-2xl font-semibold text-lg hover:bg-blue-700 hover:-translate-y-1 transition-all shadow-xl shadow-blue-200"
+              className="flex items-center gap-2 bg-brand text-white px-8 py-4 rounded-2xl font-bold text-lg hover:opacity-90 hover:-translate-y-1 transition-all shadow-xl shadow-brand/30"
             >
-              Começar Agora
+              Começar Gratuitamente
               <ChevronRight size={20} />
             </Link>
+            <a 
+              href="#recursos"
+              className="flex items-center gap-2 glass-panel px-8 py-4 rounded-2xl font-bold text-lg hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-all border border-slate-200 dark:border-slate-700"
+            >
+              Conhecer Recursos
+            </a>
           </div>
         </div>
 
-        <div className="flex-1 relative w-full max-w-lg md:max-w-none mt-10 md:mt-0">
-          <div className="absolute inset-0 bg-gradient-to-tr from-blue-100 to-indigo-50 rounded-3xl rotate-3 scale-105 -z-10"></div>
-          <div className="bg-white p-8 rounded-3xl shadow-xl border border-slate-100 relative z-10">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center">
-                <BrainCircuit size={24} />
+        <div className="flex-1 relative w-full max-w-lg md:max-w-none mt-16 md:mt-0">
+          <div className="absolute inset-0 bg-gradient-to-tr from-brand/30 to-purple-500/20 rounded-[3rem] rotate-6 scale-105 -z-10 blur-xl"></div>
+          
+          {/* Main Mockup Card */}
+          <div className="glass-panel p-8 rounded-3xl relative z-10 border border-white/40 dark:border-slate-700/60 shadow-2xl backdrop-blur-xl hover:scale-[1.02] transition-transform duration-500">
+            <div className="flex items-center gap-4 mb-8 border-b border-slate-200/50 dark:border-slate-700/50 pb-6">
+              <div className="w-14 h-14 bg-brand/10 text-brand rounded-2xl flex items-center justify-center shadow-inner">
+                <BrainCircuit size={28} />
               </div>
               <div>
-                <h3 className="font-bold text-slate-800">Flashcards Ativos</h3>
-                <p className="text-sm text-slate-500">Memorização espaçada</p>
+                <h3 className="font-extrabold text-xl">Sessão de Estudos</h3>
+                <p className="text-sm opacity-60 font-medium">Revisão diária ativa</p>
               </div>
             </div>
-            <div className="space-y-4">
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 animate-pulse-slow">
-                <p className="text-sm text-slate-400 mb-1">Ciências da Natureza</p>
-                <p className="font-semibold text-slate-700">Qual a fórmula da velocidade média?</p>
+            <div className="space-y-5">
+              <div className="bg-white/80 dark:bg-slate-800/80 p-5 rounded-2xl border border-slate-100 dark:border-slate-700/50 shadow-sm animate-pulse-slow">
+                <p className="text-xs font-bold uppercase tracking-wider text-brand mb-2">Biologia</p>
+                <p className="font-semibold text-lg text-slate-800 dark:text-slate-100">O que é a mitocôndria?</p>
               </div>
-              <div className="bg-blue-600 p-4 rounded-xl shadow-lg text-white transform -rotate-1 relative left-4">
-                <p className="font-semibold">Vm = ΔS / Δt</p>
-                <p className="text-xs text-blue-200 mt-2">Clique para virar o card</p>
+              <div className="bg-gradient-to-br from-brand to-brand/80 p-5 rounded-2xl shadow-xl shadow-brand/20 text-white transform rotate-2 relative left-4 hover:rotate-0 transition-transform cursor-pointer">
+                <p className="font-bold text-lg">É a organela responsável pela respiração celular.</p>
+                <div className="flex items-center gap-2 mt-4 pt-4 border-t border-white/20">
+                  <Star size={14} className="fill-white" />
+                  <p className="text-xs font-medium">Você acertou este card 3 vezes</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Floating Badge 1 */}
+          <div className="absolute -left-12 top-10 glass-panel p-4 rounded-2xl border border-white/30 dark:border-slate-700/50 shadow-xl z-20 animate-float">
+            <div className="flex items-center gap-3">
+              <div className="bg-green-500/20 text-green-500 p-2 rounded-lg">
+                <Star size={20} className="fill-green-500" />
+              </div>
+              <div>
+                <p className="text-xs opacity-60 font-medium">Progresso</p>
+                <p className="font-bold text-sm">100% Concluído</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Floating Badge 2 */}
+          <div className="absolute -right-8 bottom-20 glass-panel p-4 rounded-2xl border border-white/30 dark:border-slate-700/50 shadow-xl z-20 animate-float" style={{ animationDelay: '1.5s' }}>
+            <div className="flex items-center gap-3">
+              <div className="bg-purple-500/20 text-purple-500 p-2 rounded-lg">
+                <BookOpen size={20} />
+              </div>
+              <div>
+                <p className="font-bold text-sm">+5 Matérias</p>
+                <p className="text-xs opacity-60 font-medium">Hoje</p>
               </div>
             </div>
           </div>
@@ -76,32 +116,34 @@ export default function Landing() {
       </section>
 
       {/* Features */}
-      <section className="bg-white py-20 border-t border-slate-100">
+      <section id="recursos" className="py-24 relative overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-brand/5 rounded-full blur-[100px] -z-10 pointer-events-none"></div>
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-slate-900">Tudo o que você precisa para tirar 10</h2>
+          <div className="text-center mb-20 space-y-4">
+            <h2 className="text-sm font-bold tracking-widest text-brand uppercase">Plataforma Completa</h2>
+            <h3 className="text-4xl md:text-5xl font-extrabold">Tudo o que você precisa <br/> para tirar 10</h3>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow">
-              <div className="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-6">
-                <BookOpen size={28} />
+            <div className="glass-panel p-10 rounded-[2rem] hover:-translate-y-2 hover:shadow-2xl hover:shadow-brand/10 transition-all duration-300 border border-white/20 dark:border-slate-700/50 group">
+              <div className="w-16 h-16 bg-brand/10 text-brand rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform group-hover:bg-brand group-hover:text-white">
+                <BookOpen size={32} />
               </div>
-              <h3 className="text-xl font-bold text-slate-800 mb-3">Matérias Organizadas</h3>
-              <p className="text-slate-500">Separe seus estudos por áreas do conhecimento, do Fundamental ao Ensino Médio.</p>
+              <h3 className="text-2xl font-bold mb-4">Cronograma Semanal</h3>
+              <p className="opacity-70 leading-relaxed font-medium">Monte sua agenda arrastando e soltando matérias nos dias da semana. Uma organização perfeita para a sua rotina.</p>
             </div>
-            <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow">
-              <div className="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mb-6">
-                <BrainCircuit size={28} />
+            <div className="glass-panel p-10 rounded-[2rem] hover:-translate-y-2 hover:shadow-2xl hover:shadow-brand/10 transition-all duration-300 border border-white/20 dark:border-slate-700/50 group">
+              <div className="w-16 h-16 bg-brand/10 text-brand rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform group-hover:bg-brand group-hover:text-white">
+                <BrainCircuit size={32} />
               </div>
-              <h3 className="text-xl font-bold text-slate-800 mb-3">Estudo Ativo</h3>
-              <p className="text-slate-500">Crie perguntas e respostas para testar sua memória e garantir o aprendizado real.</p>
+              <h3 className="text-2xl font-bold mb-4">Flashcards e SR</h3>
+              <p className="opacity-70 leading-relaxed font-medium">Crie cartões de pergunta e resposta. Nosso algoritmo inteligente de Repetição Espaçada decide quando você deve revisar.</p>
             </div>
-            <div className="bg-slate-50 p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow">
-              <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mb-6">
-                <GraduationCap size={28} />
+            <div className="glass-panel p-10 rounded-[2rem] hover:-translate-y-2 hover:shadow-2xl hover:shadow-brand/10 transition-all duration-300 border border-white/20 dark:border-slate-700/50 group">
+              <div className="w-16 h-16 bg-brand/10 text-brand rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform group-hover:bg-brand group-hover:text-white">
+                <GraduationCap size={32} />
               </div>
-              <h3 className="text-xl font-bold text-slate-800 mb-3">Progresso Visível</h3>
-              <p className="text-slate-500">Marque os cards como aprendidos e veja sua barra de progresso encher a cada dia.</p>
+              <h3 className="text-2xl font-bold mb-4">Metas e Progresso</h3>
+              <p className="opacity-70 leading-relaxed font-medium">Bata sua meta diária limpando as revisões atrasadas do dia. Ganhe confiança visualizando sua barra de progresso encher.</p>
             </div>
           </div>
         </div>
