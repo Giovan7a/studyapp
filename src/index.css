@@ -4,23 +4,23 @@
   --background: #f8fafc;
   --foreground: #0f172a;
   
-  /* Default Blue Theme */
-  --primary: #3b82f6;
-  --primary-hover: #2563eb;
-  --primary-light: #eff6ff;
-  --primary-dark: #1d4ed8;
+  /* Default Purple Theme */
+  --primary: #4c3575;
+  --primary-hover: #3a285c;
+  --primary-light: #f5f3ff;
+  --primary-dark: #2f2149;
 
   --secondary: #64748b;
-  --accent: #10b981;
+  --accent: #f6c464;
   --card: #ffffff;
   --border: #e2e8f0;
 }
 
 :root.theme-purple {
-  --primary: #8b5cf6;
-  --primary-hover: #7c3aed;
+  --primary: #4c3575;
+  --primary-hover: #3a285c;
   --primary-light: #f5f3ff;
-  --primary-dark: #6d28d9;
+  --primary-dark: #2f2149;
 }
 
 :root.theme-green {

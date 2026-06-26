@@ -3,12 +3,13 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { studyApi } from '../api';
 import type { Subject } from '../api';
-import { GraduationCap, ArrowLeft, Plus, Trash2, Layers, User } from 'lucide-react';
+import { GraduationCap, ArrowLeft, Plus, Trash2, Layers, User, Menu } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Admin() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [newSubjectName, setNewSubjectName] = useState('');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { user } = useAuth();
 
   const FUNDAMENTAL_1_SUBJECTS = ['Matemática', 'Português', 'Ciências', 'História', 'Geografia', 'Artes', 'Educação Física'];
@@ -78,100 +79,62 @@ export default function Admin() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row relative font-sans">
-      {/* Sidebar */}
-      <aside className="w-full md:w-72 glass-panel border-r border-white/20 dark:border-slate-700/50 p-6 flex flex-col gap-8 flex-shrink-0 z-10">
-        <div className="flex items-center gap-3">
-          <div className="bg-brand p-2 rounded-xl text-white shadow-lg shadow-brand/20">
-            <GraduationCap size={24} />
-          </div>
-          <h1 className="text-xl font-bold tracking-tight">{user?.role === 'admin' ? 'Admin Panel' : 'Minhas Matérias'}</h1>
-        </div>
+    <div className="max-w-3xl mx-auto w-full flex flex-col pt-8">
+      <header className="mb-10">
+        <h2 className="text-3xl font-bold text-slate-900">Matérias</h2>
+        <p className="opacity-70 mt-1 text-slate-500 font-medium">
+          {user?.role === 'admin' ? 'Crie ou remova as matérias disponíveis para os alunos.' : 'Crie ou remova suas próprias matérias.'}
+        </p>
+      </header>
 
-        <nav className="flex flex-col gap-2 flex-1">
-          <Link 
-            to="/dashboard"
-            className="flex items-center gap-3 p-3 rounded-lg transition-all hover:bg-slate-100 dark:hover:bg-slate-800"
+      <div className="bg-[#fcfcff] border border-slate-100 p-8 rounded-[2.5rem] shadow-sm">
+        <form onSubmit={handleAddSubject} className="flex flex-col sm:flex-row gap-4 mb-10">
+          <input 
+            value={newSubjectName}
+            onChange={(e) => setNewSubjectName(e.target.value)}
+            className="flex-1 bg-white border border-slate-200 rounded-2xl p-4 focus:outline-none focus:ring-2 focus:ring-[#4c3575] transition-all text-slate-900 font-bold shadow-sm"
+            placeholder="Nome da nova matéria..."
+            required
+          />
+          <button 
+            type="submit"
+            className="bg-[#4c3575] text-white rounded-2xl px-8 py-4 font-bold hover:bg-[#3a285c] transition-all shadow-lg shadow-purple-900/20 flex items-center justify-center gap-2"
           >
-            <ArrowLeft size={18} />
-            <span>Voltar ao Dashboard</span>
-          </Link>
+            <Plus size={20} />
+            Adicionar
+          </button>
+        </form>
 
-          <div className="flex items-center justify-between p-3 rounded-lg bg-brand/10 text-brand font-medium mt-4">
-            <div className="flex items-center gap-3">
-              <Layers size={18} />
-              <span>Matérias</span>
+        <div>
+          <h3 className="text-xl font-bold mb-6 text-slate-800">
+            {user?.role === 'admin' ? 'Matérias Existentes' : 'Suas Matérias'}
+          </h3>
+          {subjects.length === 0 ? (
+            <div className="text-center py-12 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
+              <Layers className="mx-auto h-12 w-12 text-slate-300 mb-4" />
+              <p className="font-bold text-slate-400">Nenhuma matéria cadastrada.</p>
             </div>
-          </div>
-
-          <Link 
-            to="/profile"
-            className="flex items-center gap-3 p-3 rounded-lg transition-all hover:bg-slate-100 dark:hover:bg-slate-800 mt-auto"
-          >
-            <User size={18} />
-            <span>Perfil e Configurações</span>
-          </Link>
-        </nav>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 p-6 md:p-10 max-w-3xl mx-auto w-full z-10">
-        <header className="mb-10">
-          <h2 className="text-3xl font-bold">Matérias</h2>
-          <p className="opacity-70 mt-1">
-            {user?.role === 'admin' ? 'Crie ou remova as matérias disponíveis para os alunos.' : 'Crie ou remova suas próprias matérias.'}
-          </p>
-        </header>
-
-        <div className="glass-panel p-8 rounded-2xl">
-          <form onSubmit={handleAddSubject} className="flex gap-4 mb-8">
-            <input 
-              value={newSubjectName}
-              onChange={(e) => setNewSubjectName(e.target.value)}
-              className="flex-1 bg-transparent border border-slate-300 dark:border-slate-600 rounded-xl p-4 focus:outline-none focus:ring-2 focus:ring-brand transition-all"
-              placeholder="Nome da nova matéria (Ex: História Geral)..."
-              required
-            />
-            <button 
-              type="submit"
-              className="bg-brand text-white rounded-xl px-6 py-4 font-semibold hover:opacity-90 transition-all shadow-md flex items-center gap-2"
-            >
-              <Plus size={20} />
-              Adicionar
-            </button>
-          </form>
-
-          <div>
-            <h3 className="text-lg font-semibold mb-4">
-              {user?.role === 'admin' ? 'Matérias Existentes' : 'Suas Matérias'}
-            </h3>
-            {subjects.length === 0 ? (
-              <div className="text-center py-10 bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-300 dark:border-slate-600">
-                <Layers className="mx-auto h-12 w-12 opacity-30 mb-3" />
-                <p className="font-medium opacity-60">Nenhuma matéria cadastrada.</p>
-              </div>
-            ) : (
-              <ul className="space-y-3">
-                {subjects.map(subject => (
-                  <li key={subject.id} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700/50 hover:border-brand/50 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div className="w-4 h-4 rounded-full shadow-sm" style={{ backgroundColor: subject.color }}></div>
-                      <span className="font-semibold text-lg">{subject.name}</span>
-                    </div>
-                    <button 
-                      onClick={() => handleDeleteSubject(subject.id)}
-                      className="opacity-50 hover:opacity-100 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 p-2 rounded-lg transition-all"
-                      title="Excluir matéria"
-                    >
-                      <Trash2 size={20} />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+          ) : (
+            <ul className="grid sm:grid-cols-2 gap-4">
+              {subjects.map(subject => (
+                <li key={subject.id} className="flex items-center justify-between p-5 bg-white rounded-2xl border border-slate-100 hover:border-slate-200 shadow-sm transition-all group">
+                  <div className="flex items-center gap-4">
+                    <div className="w-5 h-5 rounded-full shadow-sm" style={{ backgroundColor: subject.color }}></div>
+                    <span className="font-bold text-slate-700">{subject.name}</span>
+                  </div>
+                  <button 
+                    onClick={() => handleDeleteSubject(subject.id)}
+                    className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 hover:bg-red-50 p-2 rounded-xl transition-all"
+                    title="Excluir matéria"
+                  >
+                    <Trash2 size={20} />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-      </main>
+      </div>
     </div>
   );
 }

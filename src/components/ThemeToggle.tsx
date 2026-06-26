@@ -7,7 +7,7 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-      className="fixed bottom-6 right-6 z-[100] p-4 rounded-full shadow-lg transition-all hover:scale-110 active:scale-95 glass-panel border border-white/20 dark:border-slate-700/50 text-slate-800 dark:text-white group"
+      className="fixed bottom-6 right-6 z-[100] p-4 rounded-full shadow-lg transition-all hover:scale-110 active:scale-95 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white group"
       title="Alternar tema"
     >
       {theme === 'light' ? (

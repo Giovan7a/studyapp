@@ -1,245 +1,263 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { studyApi } from '../api';
-import type { Flashcard } from '../api';
+import type { Subject, Flashcard } from '../api';
 import { 
-  GraduationCap, 
-  Layers, 
-  BrainCircuit, 
-  BookOpen, 
-  ArrowRight,
-  TrendingUp,
-  Award,
-  User,
-  Calendar,
-  Sparkles,
-  Timer
+  CircleCheck,
+  Circle,
+  Menu,
+  ChevronLeft,
+  ChevronRight,
+  Play,
+  Layers,
+  BookOpen
 } from 'lucide-react';
 
 export default function Home() {
   const { user } = useAuth();
+  
+  const [subjects, setSubjects] = useState<Subject[]>([]);
   const [cards, setCards] = useState<Flashcard[]>([]);
+  
+  // Calendar state
+  const [currentDate, setCurrentDate] = useState(new Date());
 
-  async function fetchCards() {
+  async function fetchData() {
     try {
-      const res = await studyApi.getFlashcards();
-      setCards(res.data);
+      const [subjectsRes, cardsRes] = await Promise.all([
+        studyApi.getSubjects(),
+        studyApi.getFlashcards()
+      ]);
+      
+      let filteredSubjects = subjectsRes.data;
+      if (user?.role !== 'admin') {
+        const mySubjects = JSON.parse(localStorage.getItem(`my_subjects_${user?.username}`) || '[]');
+        filteredSubjects = filteredSubjects.filter(s => mySubjects.includes(s.id));
+        if (filteredSubjects.length === 0) {
+           filteredSubjects = subjectsRes.data.slice(0, 5);
+        }
+      }
+      setSubjects(filteredSubjects);
+      setCards(cardsRes.data);
     } catch (err) {
       console.error(err);
     }
   }
 
   useEffect(() => {
-    fetchCards();
+    fetchData();
   }, []);
 
-  const learnedCount = cards.filter(c => c.is_learned).length;
-  const totalCards = cards.length;
-  const progress = totalCards > 0 ? Math.round((learnedCount / totalCards) * 100) : 0;
+  // Calendar Logic
+  const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
+  const getFirstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
+
+  const prevMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+  const nextMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+
+  const daysInMonth = getDaysInMonth(currentDate.getFullYear(), currentDate.getMonth());
+  const firstDayOfMonth = getFirstDayOfMonth(currentDate.getFullYear(), currentDate.getMonth());
+  
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const currentMonthName = monthNames[currentDate.getMonth()];
+  const currentYear = currentDate.getFullYear();
+  
+  const today = new Date();
+  const isCurrentMonth = today.getMonth() === currentDate.getMonth() && today.getFullYear() === currentDate.getFullYear();
+
+  const blanks = Array(firstDayOfMonth).fill(null);
+  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+
+  // Mocks para simular os novos componentes
+  const mockTasks = subjects.slice(0, 3).map((sub, i) => ({
+    id: i,
+    title: `Estudar ${sub.name}`,
+    time: i === 0 ? "08:00 - 10:00 AM" : i === 1 ? "11:00 - 12:00 AM" : "13:00 - 15:00 PM",
+    done: i === 2
+  }));
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row relative font-sans">
-      {/* Sidebar */}
-      <aside className="w-full md:w-72 glass-panel border-r border-white/20 dark:border-slate-700/50 p-6 flex flex-col gap-8 flex-shrink-0 z-10">
-        <div className="flex items-center gap-3">
-          <div className="bg-brand p-2 rounded-xl text-white shadow-lg shadow-brand/20">
-            <GraduationCap size={24} />
+    <div className="flex flex-col xl:flex-row gap-12 w-full">
+      
+      {/* Left Column: Meus Cursos & Today Task */}
+      <div className="flex-1 flex flex-col max-w-4xl xl:ml-8">
+        
+        {/* Mobile Notification Card */}
+        <section className="xl:hidden mb-10">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold text-slate-900">Notification</h3>
+            <span className="text-sm font-bold text-[#f6c464] cursor-pointer hover:underline">View all</span>
           </div>
-          <h1 className="text-xl font-bold tracking-tight">StudyApp</h1>
-        </div>
-
-        <nav className="flex flex-col gap-2 flex-1 mt-4">
-          <p className="text-xs font-semibold opacity-50 uppercase tracking-wider mb-2">Menu Principal</p>
           
-          <div className="flex items-center justify-between p-3 rounded-lg bg-brand/10 text-brand font-bold shadow-inner border border-brand/20">
-            <div className="flex items-center gap-3">
-              <TrendingUp size={18} />
-              <span>Início</span>
-            </div>
-          </div>
-
-          <Link 
-            to="/dashboard"
-            className="flex items-center gap-3 p-3 rounded-lg transition-all hover:bg-slate-100 dark:hover:bg-slate-800 font-medium opacity-80 hover:opacity-100"
-          >
-            <BrainCircuit size={18} />
-            <span>Estudar Flashcards</span>
-          </Link>
-          
-          <Link 
-            to="/schedule"
-            className="flex items-center gap-3 p-3 rounded-lg transition-all hover:bg-slate-100 dark:hover:bg-slate-800 font-medium opacity-80 hover:opacity-100 mt-2"
-          >
-            <Calendar size={18} />
-            <span>Cronograma Semanal</span>
-          </Link>
-
-          <Link 
-            to="/pomodoro"
-            className="flex items-center gap-3 p-3 rounded-lg transition-all hover:bg-slate-100 dark:hover:bg-slate-800 font-medium opacity-80 hover:opacity-100 mt-2"
-          >
-            <Timer size={18} />
-            <span>Timer Pomodoro</span>
-          </Link>
-
-          {user?.role === 'admin' && (
-            <Link 
-              to="/admin"
-              className="flex items-center gap-3 p-3 rounded-lg transition-all hover:bg-slate-100 dark:hover:bg-slate-800 font-medium opacity-80 hover:opacity-100 mt-2"
-            >
-              <Layers size={18} />
-              <span>Painel Admin</span>
-            </Link>
-          )}
-
-          <Link 
-            to="/profile"
-            className="flex items-center gap-3 p-3 rounded-lg transition-all hover:bg-slate-100 dark:hover:bg-slate-800 font-medium opacity-80 hover:opacity-100 mt-auto"
-          >
-            <User size={18} />
-            <span>Perfil e Configurações</span>
-          </Link>
-        </nav>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 p-6 md:p-8 max-w-6xl mx-auto w-full z-10">
-        <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand/10 text-brand text-xs font-bold mb-3 animate-pulse-slow">
-              <Sparkles size={14} className="fill-brand" />
-              Sua central de estudos
-            </div>
-            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">
-              Olá, {user?.username}! 👋
-            </h2>
-            <p className="opacity-70 mt-2 text-base font-medium">O que vamos aprender hoje?</p>
-          </div>
-        </header>
-
-        {/* Progress Overview */}
-        <section className="mb-12">
-          <div className="bg-gradient-to-br from-brand via-brand/80 to-purple-600 rounded-[2rem] p-6 md:p-8 relative overflow-hidden shadow-2xl shadow-brand/20 text-white border border-white/20 hover:scale-[1.01] transition-transform duration-500">
-            {/* Background Decorations */}
-            <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
-            <div className="absolute bottom-0 left-0 w-56 h-56 bg-black/10 rounded-full blur-2xl -ml-20 -mb-20 pointer-events-none"></div>
+          <div className="bg-[#5c418c] text-white p-6 rounded-3xl relative overflow-hidden shadow-lg shadow-purple-900/10">
+            <div className="absolute -right-10 -bottom-10 w-32 h-32 border-[20px] border-white/5 rounded-full pointer-events-none"></div>
+            <div className="absolute right-5 bottom-5 w-20 h-20 border-[2px] border-white/10 rounded-full pointer-events-none"></div>
             
-            <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2.5 bg-white/20 backdrop-blur-md rounded-xl shadow-inner border border-white/30">
-                    <Award size={24} className="text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold">Progresso Global</h3>
-                </div>
-                
-                <p className="opacity-90 mb-6 max-w-md text-base leading-relaxed font-medium">
-                  Você já dominou <strong className="text-yellow-300 text-lg">{learnedCount}</strong> de {totalCards} flashcards no total. Continue assim!
-                </p>
-
-                <div className="w-full bg-black/20 h-3 rounded-full overflow-hidden mb-2 border border-white/10 shadow-inner">
-                  <div 
-                    className="bg-gradient-to-r from-yellow-400 to-yellow-300 h-full rounded-full transition-all duration-1000 ease-out relative" 
-                    style={{ width: `${progress}%` }}
-                  >
-                    <div className="absolute inset-0 bg-white/20 w-full animate-pulse"></div>
-                  </div>
-                </div>
-                <div className="flex justify-between text-xs font-bold opacity-90">
-                  <span className="text-yellow-300">{progress}% Concluído</span>
-                  <span>100%</span>
-                </div>
+            <div className="flex gap-4 relative z-10">
+              <div className="bg-white/10 p-3 rounded-2xl h-max border border-white/20">
+                <Play size={20} className="fill-white" />
               </div>
-
-              <div className="w-full md:w-auto flex-shrink-0">
-                <Link 
-                  to="/dashboard"
-                  className="w-full md:w-auto inline-flex items-center justify-center gap-2 bg-white text-brand px-6 py-3.5 rounded-xl font-extrabold text-base hover:bg-slate-50 transition-all hover:shadow-xl hover:-translate-y-1 active:scale-95"
-                >
-                  Continuar Estudando
-                  <ArrowRight size={20} />
-                </Link>
+              <div>
+                <h4 className="font-bold text-base leading-snug mb-1">Atenção! Você tem tarefas pendentes hoje.</h4>
+                <p className="text-xs text-purple-200 mb-4 opacity-80">18 Aug 2026 - 10:00 AM</p>
+                <button className="bg-[#f6c464] text-[#4c3575] text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-yellow-400 transition-colors shadow-lg shadow-yellow-500/20">
+                  Estudar Agora
+                </button>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Quick Actions */}
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold">Acesso Rápido</h3>
+        {/* Meus Cursos */}
+        <section className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-slate-900">
+              Meus Cursos
+            </h2>
+            <button className="text-sm font-bold text-[#f6c464] hover:underline">Ver todos</button>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            <Link 
-              to="/pomodoro"
-              className="group glass-panel p-6 rounded-2xl transition-all flex flex-col gap-3 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-brand/20 border border-white/20 dark:border-slate-700/50"
-            >
-              <div className="bg-brand/10 text-brand p-3 rounded-xl group-hover:bg-brand group-hover:text-white transition-all w-12 h-12 flex items-center justify-center shadow-inner">
-                <Timer size={24} />
-              </div>
-              <div>
-                <h4 className="text-lg font-bold mb-1">Timer Pomodoro</h4>
-                <p className="text-sm opacity-70 font-medium leading-relaxed">Bloqueie distrações e foque em blocos de 25 minutos.</p>
-              </div>
-            </Link>
 
-            <Link 
-              to="/schedule"
-              className="group glass-panel p-6 rounded-2xl transition-all flex flex-col gap-3 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-brand/20 border border-white/20 dark:border-slate-700/50"
-            >
-              <div className="bg-brand/10 text-brand p-3 rounded-xl group-hover:bg-brand group-hover:text-white transition-all w-12 h-12 flex items-center justify-center shadow-inner">
-                <Calendar size={24} />
-              </div>
-              <div>
-                <h4 className="text-lg font-bold mb-1">Meu Cronograma</h4>
-                <p className="text-sm opacity-70 font-medium leading-relaxed">Planeje sua semana arrastando as matérias.</p>
-              </div>
-            </Link>
-
-            <Link 
-              to="/dashboard"
-              className="group glass-panel p-6 rounded-2xl transition-all flex flex-col gap-3 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-brand/20 border border-white/20 dark:border-slate-700/50"
-            >
-              <div className="bg-brand/10 text-brand p-3 rounded-xl group-hover:bg-brand group-hover:text-white transition-all w-12 h-12 flex items-center justify-center shadow-inner">
-                <BrainCircuit size={24} />
-              </div>
-              <div>
-                <h4 className="text-lg font-bold mb-1">Flashcards</h4>
-                <p className="text-sm opacity-70 font-medium leading-relaxed">Revise ativamente para memorizar mais.</p>
-              </div>
-            </Link>
-
-            {user?.role === 'admin' ? (
-              <Link 
-                to="/admin"
-                className="group glass-panel p-6 rounded-2xl transition-all flex flex-col gap-3 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-brand/20 border border-white/20 dark:border-slate-700/50"
-              >
-                <div className="bg-brand/10 text-brand p-3 rounded-xl group-hover:bg-brand group-hover:text-white transition-all w-12 h-12 flex items-center justify-center shadow-inner">
-                  <Layers size={24} />
+          <div className="flex flex-col gap-3">
+            {subjects.slice(0, 4).map((sub, i) => {
+              const progress = [75, 40, 100, 15][i] || 0;
+              return (
+                <div key={sub.id} className="bg-[#fcfcff] p-4 border border-slate-100 rounded-2xl flex flex-col sm:flex-row sm:items-center gap-4 group hover:shadow-md transition-all cursor-pointer">
+                  <div className="w-12 h-12 rounded-xl bg-[#f2eff8] flex items-center justify-center text-[#4c3575] shrink-0">
+                    <BookOpen size={24} className="group-hover:scale-110 transition-transform" />
+                  </div>
+                  
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-slate-900 group-hover:text-[#4c3575] transition-colors">{sub.name}</h3>
+                    <p className="text-xs font-medium text-slate-500">Intermediário</p>
+                  </div>
+                  
+                  <div className="w-full sm:w-40">
+                    <div className="flex justify-between text-[10px] font-bold mb-1.5 uppercase tracking-wider">
+                      <span className="text-slate-500">Progresso</span>
+                      <span className="text-[#4c3575]">{progress}%</span>
+                    </div>
+                    <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                      <div className="bg-[#f6c464] h-full rounded-full" style={{ width: `${progress}%` }}></div>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-lg font-bold mb-1">Painel Admin</h4>
-                  <p className="text-sm opacity-70 font-medium leading-relaxed">Gerencie as matérias de todos os alunos.</p>
-                </div>
-              </Link>
-            ) : (
-              <div className="glass-panel p-6 rounded-2xl flex flex-col gap-3 opacity-60 border border-white/20 dark:border-slate-700/50 relative overflow-hidden">
-                <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-slate-200/50 dark:bg-slate-700/50 rounded-full blur-xl"></div>
-                <div className="bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400 p-3 rounded-xl w-12 h-12 flex items-center justify-center shadow-inner relative z-10">
-                  <BookOpen size={24} />
-                </div>
-                <div className="relative z-10">
-                  <h4 className="text-lg font-bold mb-1">Novidades</h4>
-                  <p className="text-sm font-medium leading-relaxed">Mais ferramentas chegarão em breve.</p>
-                </div>
+              );
+            })}
+            
+            {subjects.length === 0 && (
+              <div className="text-center py-6 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+                <p className="font-bold text-slate-400 text-sm">Nenhum curso encontrado.</p>
               </div>
             )}
           </div>
         </section>
-      </main>
+
+        {/* Today Task */}
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+              Today Task <span className="text-slate-400 text-base font-medium">({mockTasks.length})</span>
+            </h2>
+            <button className="p-1 rounded-full text-[#4c3575] hover:bg-[#f2eff8] transition-colors">
+              <Menu size={20} />
+            </button>
+          </div>
+
+          <div className="bg-[#fcfcff] border border-slate-100 rounded-2xl p-5 flex flex-col gap-4">
+            {mockTasks.map(task => (
+              <div key={task.id} className="flex items-center gap-3 group cursor-pointer">
+                <div className="text-[#4c3575]">
+                  {task.done ? <CircleCheck size={22} className="fill-[#e9e4f5]" /> : <Circle size={22} className="text-[#a491c9]" />}
+                </div>
+                <span className={`flex-1 text-base font-medium transition-colors ${task.done ? 'text-slate-400 line-through' : 'text-slate-700 group-hover:text-[#4c3575]'}`}>
+                  {task.title}
+                </span>
+                <span className="text-[10px] font-bold text-[#8a72be] uppercase tracking-wider hidden sm:block">
+                  {task.time}
+                </span>
+              </div>
+            ))}
+            {mockTasks.length === 0 && (
+              <p className="text-slate-500 text-center py-2 text-sm">Sem tarefas para hoje!</p>
+            )}
+          </div>
+        </section>
+        
+      </div>
+
+      {/* Right Column: Calendar & Notification */}
+      <div className="w-full xl:w-[22rem] flex flex-col gap-10 xl:ml-auto">
+        
+        {/* Small Calendar */}
+        <section className="bg-[#fcfcff] border border-slate-100 p-6 rounded-3xl flex flex-col gap-4 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold text-slate-900">
+              {currentMonthName}, {currentYear}
+            </h3>
+            <div className="flex gap-1">
+                <button onClick={prevMonth} className="p-1.5 text-slate-400 hover:text-slate-800 transition-colors bg-white rounded-lg shadow-sm border border-slate-100"><ChevronLeft size={18}/></button>
+                <button onClick={nextMonth} className="p-1.5 text-slate-400 hover:text-slate-800 transition-colors bg-white rounded-lg shadow-sm border border-slate-100"><ChevronRight size={18}/></button>
+            </div>
+          </div>
+          
+          <div className="w-full">
+            <div className="grid grid-cols-7 gap-1 text-center mb-4">
+              {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'].map((day, idx) => (
+                <div key={idx} className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{day}</div>
+              ))}
+            </div>
+            
+            <div className="grid grid-cols-7 gap-y-3 gap-x-1 text-center">
+              {blanks.map((_, i) => (
+                <div key={`blank-${i}`} className="h-8"></div>
+              ))}
+              {days.map(day => {
+                const isToday = isCurrentMonth && day === today.getDate();
+                return (
+                  <div key={day} className="h-8 flex items-center justify-center">
+                    <div 
+                      className={`w-8 h-8 flex items-center justify-center text-sm rounded-full transition-all cursor-pointer
+                        ${isToday 
+                          ? 'bg-[#f6c464] text-white font-bold shadow-md shadow-yellow-500/20' 
+                          : 'text-slate-600 hover:bg-[#f2eff8] font-medium'}`}
+                    >
+                      {day}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* Notification Card */}
+        <section className="hidden xl:block">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold text-slate-900">Notification</h3>
+            <span className="text-sm font-bold text-[#f6c464] cursor-pointer hover:underline">View all</span>
+          </div>
+          
+          <div className="bg-[#5c418c] text-white p-6 rounded-3xl relative overflow-hidden shadow-lg shadow-purple-900/10">
+            <div className="absolute -right-10 -bottom-10 w-32 h-32 border-[20px] border-white/5 rounded-full pointer-events-none"></div>
+            <div className="absolute right-5 bottom-5 w-20 h-20 border-[2px] border-white/10 rounded-full pointer-events-none"></div>
+            
+            <div className="flex gap-4 relative z-10">
+              <div className="bg-white/10 p-3 rounded-2xl h-max border border-white/20">
+                <Play size={20} className="fill-white" />
+              </div>
+              <div>
+                <h4 className="font-bold text-base leading-snug mb-1">Atenção! Você tem tarefas pendentes hoje.</h4>
+                <p className="text-xs text-purple-200 mb-4 opacity-80">18 Aug 2026 - 10:00 AM</p>
+                <button className="bg-[#f6c464] text-[#4c3575] text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-yellow-400 transition-colors shadow-lg shadow-yellow-500/20">
+                  Estudar Agora
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
     </div>
   );
 }

@@ -1,8 +1,19 @@
 import axios from 'axios';
 
+// Usa o mesmo IP de onde o site foi acessado (necessário para funcionar no celular)
 const api = axios.create({
-  baseURL: 'http://localhost:8010/api/',
+  baseURL: `http://${window.location.hostname}:8010/api/`,
 });
+
+// Adicionar interceptor para incluir o token de autenticação
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('studyapp_token');
+  if (token) {
+    config.headers.Authorization = `Token ${token}`;
+  }
+  return config;
+});
+
 
 export interface Subject {
   id: number;
@@ -63,6 +74,14 @@ export interface StudyStats {
   }[];
 }
 
+export interface AuthResponse {
+  token: string;
+  username: string;
+  role: 'admin' | 'usuario';
+  educationLevel?: string;
+}
+
+
 export const studyApi = {
   getSubjects: () => api.get<Subject[]>('subjects/'),
   createSubject: (data: Partial<Subject>) => api.post<Subject>('subjects/', data),
@@ -84,6 +103,9 @@ export const studyApi = {
 
   createSession: (data: { subject: number, duration_minutes: number }) => api.post<StudySession>('sessions/', data),
   getSessionStats: () => api.get<StudyStats>('sessions/stats/'),
+
+  login: (username: string, password: string) => api.post<AuthResponse>('auth/login/', { username, password }),
+  register: (username: string, password: string, educationLevel: string) => api.post<AuthResponse>('auth/register/', { username, password, educationLevel }),
 };
 
 export default api;

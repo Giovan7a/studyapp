@@ -13,7 +13,8 @@ import StudySession from './pages/StudySession';
 import Schedule from './pages/Schedule';
 import ThemeToggle from './components/ThemeToggle';
 import Pomodoro from './pages/Pomodoro';
-
+import Layout from './components/Layout';
+import Tasks from './pages/Tasks';
 // Wrapper for protected routes
 const ProtectedRoute = ({ children, roles }: { children: React.ReactNode, roles?: string[] }) => {
   const { user } = useAuth();
@@ -39,7 +40,7 @@ function AppRoutes() {
         path="/home" 
         element={
           <ProtectedRoute>
-            <Home />
+            <Layout><Home /></Layout>
           </ProtectedRoute>
         } 
       />
@@ -47,7 +48,7 @@ function AppRoutes() {
         path="/profile" 
         element={
           <ProtectedRoute>
-            <Profile />
+            <Layout><Profile /></Layout>
           </ProtectedRoute>
         } 
       />
@@ -55,7 +56,7 @@ function AppRoutes() {
         path="/dashboard" 
         element={
           <ProtectedRoute>
-            <Dashboard />
+            <Layout><Dashboard /></Layout>
           </ProtectedRoute>
         } 
       />
@@ -63,7 +64,7 @@ function AppRoutes() {
         path="/schedule" 
         element={
           <ProtectedRoute>
-            <Schedule />
+            <Layout><Schedule /></Layout>
           </ProtectedRoute>
         } 
       />
@@ -71,7 +72,7 @@ function AppRoutes() {
         path="/pomodoro" 
         element={
           <ProtectedRoute>
-            <Pomodoro />
+            <Layout><Pomodoro /></Layout>
           </ProtectedRoute>
         } 
       />
@@ -79,7 +80,7 @@ function AppRoutes() {
         path="/admin" 
         element={
           <ProtectedRoute>
-            <Admin />
+            <Layout><Admin /></Layout>
           </ProtectedRoute>
         } 
       />
@@ -87,7 +88,15 @@ function AppRoutes() {
         path="/study/:subjectId" 
         element={
           <ProtectedRoute>
-            <StudySession />
+            <Layout><StudySession /></Layout>
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/tasks" 
+        element={
+          <ProtectedRoute>
+            <Layout><Tasks /></Layout>
           </ProtectedRoute>
         } 
       />
