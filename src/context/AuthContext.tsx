@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import { studyApi } from '../api';
 
 export type Role = 'admin' | 'usuario';
 export type EducationLevel = 'fundamental1' | 'fundamental2_medio' | 'faculdade';
@@ -12,8 +13,8 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  login: (username: string, password: string) => boolean;
-  register: (username: string, password: string, educationLevel: EducationLevel) => boolean;
+  login: (username: string, password: string) => Promise<boolean>;
+  register: (username: string, password: string, educationLevel: EducationLevel) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -33,57 +34,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [user]);
 
-  const login = (username: string, password: string): boolean => {
-    // Hardcoded users
-    if (username === 'admin' && password === '123456') {
-      setUser({ username, role: 'admin' });
-      return true;
-    } else if (username === 'usuario' && password === '123456') {
-      setUser({ username, role: 'usuario' });
-      return true;
-    }
-    
-    // Check localStorage users
-    const usersStr = localStorage.getItem('studyapp_users_db');
-    if (usersStr) {
-      const users = JSON.parse(usersStr);
-      const userRecord = users[username];
+  const login = async (username: string, password: string): Promise<boolean> => {
+    try {
+      const response = await studyApi.login(username, password);
+      const { token, role, educationLevel } = response.data;
       
-      if (userRecord) {
-        // Handle legacy format (just password string)
-        if (typeof userRecord === 'string' && userRecord === password) {
-          setUser({ username, role: 'usuario', educationLevel: 'faculdade' });
-          return true;
-        } 
-        // Handle new format
-        else if (typeof userRecord === 'object' && userRecord.password === password) {
-          setUser({ username, role: 'usuario', educationLevel: userRecord.educationLevel });
-          return true;
-        }
-      }
+      localStorage.setItem('studyapp_token', token);
+      setUser({ username, role, educationLevel: educationLevel as EducationLevel });
+      return true;
+    } catch (error) {
+      console.error("Login failed", error);
+      return false;
     }
-
-    return false;
   };
 
-  const register = (username: string, password: string, educationLevel: EducationLevel): boolean => {
-    if (username === 'admin' || username === 'usuario') return false; // Reserved
-
-    const usersStr = localStorage.getItem('studyapp_users_db');
-    const users = usersStr ? JSON.parse(usersStr) : {};
-
-    if (users[username]) {
-      return false; // User already exists
+  const register = async (username: string, password: string, educationLevel: EducationLevel): Promise<boolean> => {
+    try {
+      const response = await studyApi.register(username, password, educationLevel);
+      const { token, role } = response.data;
+      
+      localStorage.setItem('studyapp_token', token);
+      setUser({ username, role, educationLevel });
+      return true;
+    } catch (error) {
+      console.error("Registration failed", error);
+      return false;
     }
-
-    users[username] = { password, educationLevel };
-    localStorage.setItem('studyapp_users_db', JSON.stringify(users));
-    setUser({ username, role: 'usuario', educationLevel });
-    return true;
   };
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem('studyapp_token');
   };
 
   return (

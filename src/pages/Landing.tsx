@@ -3,7 +3,7 @@ import { GraduationCap, BrainCircuit, BookOpen, Star, ChevronRight } from 'lucid
 
 export default function Landing() {
   return (
-    <div className="min-h-screen font-sans selection:bg-brand/20">
+    <div className="min-h-screen font-sans selection:bg-brand/20 overflow-x-hidden">
       {/* Navbar */}
       <nav className="flex items-center justify-between px-6 py-4 glass-panel sticky top-0 z-50 border-b border-white/20 dark:border-slate-700/50">
         <div className="flex items-center gap-3">
@@ -88,7 +88,7 @@ export default function Landing() {
           </div>
 
           {/* Floating Badge 1 */}
-          <div className="absolute -left-12 top-10 glass-panel p-4 rounded-2xl border border-white/30 dark:border-slate-700/50 shadow-xl z-20 animate-float">
+          <div className="absolute -left-4 md:-left-12 top-10 glass-panel p-4 rounded-2xl border border-white/30 dark:border-slate-700/50 shadow-xl z-20 animate-float">
             <div className="flex items-center gap-3">
               <div className="bg-green-500/20 text-green-500 p-2 rounded-lg">
                 <Star size={20} className="fill-green-500" />
@@ -101,7 +101,7 @@ export default function Landing() {
           </div>
 
           {/* Floating Badge 2 */}
-          <div className="absolute -right-8 bottom-20 glass-panel p-4 rounded-2xl border border-white/30 dark:border-slate-700/50 shadow-xl z-20 animate-float" style={{ animationDelay: '1.5s' }}>
+          <div className="absolute -right-2 md:-right-8 bottom-20 glass-panel p-4 rounded-2xl border border-white/30 dark:border-slate-700/50 shadow-xl z-20 animate-float" style={{ animationDelay: '1.5s' }}>
             <div className="flex items-center gap-3">
               <div className="bg-purple-500/20 text-purple-500 p-2 rounded-lg">
                 <BookOpen size={20} />
